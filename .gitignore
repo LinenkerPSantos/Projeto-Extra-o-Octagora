@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+Backend/.env
+Backend/credentials.json
+Backend/downloads/**/*.csv
+Backend/downloads/**/*.xlsx
+Backend/downloads/**/*.json
+node_modules/
+Frontend/dist/
+
+# Bancos Access e planilhas de importação (dados de produção, não fazem
+# parte do código do projeto — não devem ir para o repositório)
+Base de Dados para Automação/
