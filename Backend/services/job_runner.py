@@ -20,7 +20,6 @@ SCRIPTS: dict[str, str] = {
     "nps-agencias":           "scripts/formulario_nps_agencias.py",
     "nps-especializado":      "scripts/formulario_nps_especializado.py",
     "nps-video":              "scripts/formulario_nps_video.py",
-    "tempo-real":             "scripts/tempo_real.py",
 }
 
 # Relatórios que só existem no ambiente "Agências - SP" do Octagora (não têm

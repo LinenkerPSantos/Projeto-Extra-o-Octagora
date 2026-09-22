@@ -19,7 +19,6 @@ const SECTIONS = [
     icon: '📊',
     items: [
       { to: '/octagora',            label: 'Octagora'            },
-      { to: '/tempo-real',          label: 'Tempo Real'          },
       { to: '/atualizar-banco',     label: 'Atualizar Banco'     },
       { to: '/dimensionamento',     label: 'Dimensionamento'     },
       { to: '/cadop',               label: 'CADOP'               },

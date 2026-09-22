@@ -3,7 +3,6 @@ import { RegionProvider } from './context/RegionContext'
 import Layout from './components/layout/Layout'
 import Dashboard from './features/dashboard/Dashboard'
 import Extracao from './features/extracao/Extracao'
-import TempoReal from './features/tempo-real/TempoReal'
 import Configuracoes from './features/configuracoes/Configuracoes'
 import EmConstrucao from './features/em-construcao/EmConstrucao'
 
@@ -31,7 +30,6 @@ export default function App() {
           <Route element={<Layout />}>
             <Route index element={<Dashboard />} />
             <Route path="octagora" element={<Extracao />} />
-            <Route path="tempo-real" element={<TempoReal />} />
             <Route path="configuracoes" element={<Configuracoes />} />
             {PLACEHOLDERS.map(p => (
               <Route key={p.path} path={p.path} element={<EmConstrucao titulo={p.titulo} />} />

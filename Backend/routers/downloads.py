@@ -7,7 +7,6 @@ import pandas as pd
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse, FileResponse
 
-import config
 from config import DOWNLOADS_DIR, REGIOES
 
 router = APIRouter(prefix="/api/downloads", tags=["downloads"])
@@ -19,12 +18,8 @@ _PREFIX_MAP = {
     "nps_agencias":      "NPS_Agencias",
     "nps_especializado": "NPS_Especializado",
     "nps_video":         "NPS_Video",
-    "tempo_real":        "TempoReal",
 }
 
-# Só relatórios com um CSV por dia (nome{DDMMYYYY}.csv) entram na consolidação
-# em Excel. Tempo Real é uma foto do momento (tempo_real.json, sem data no
-# nome) e é tratado à parte — baixado como arquivo bruto, não consolidado.
 _CONSOLIDATE_SHEETS = {
     "sumario":           "Sumario",
     "detalhe":           "Detalhe",
@@ -100,46 +95,8 @@ def _build_consolidado(folder: Path) -> BytesIO | None:
     return buffer
 
 
-def _build_consolidado_geral() -> BytesIO | None:
-    """Consolida Sumário e Detalhe de todas as regiões (ES + SP) em um único
-    arquivo, com a coluna Regiao identificando a origem de cada linha."""
-    sheets = {}
-    for prefix, sheet_name in _CONSOLIDATE_SHEETS.items():
-        dfs = []
-        for regiao in REGIOES:
-            folder = _regiao_dir(regiao)
-            for f, date_str in _collect_for_consolidation(folder, prefix):
-                dfs.append(_read_csv(f, date_str, regiao=regiao))
-        if dfs:
-            sheets[sheet_name] = pd.concat(dfs, ignore_index=True)
-
-    if not sheets:
-        return None
-
-    buffer = BytesIO()
-    with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
-        for sheet_name, df in sheets.items():
-            df.to_excel(writer, sheet_name=sheet_name, index=False)
-    buffer.seek(0)
-    return buffer
-
-
-# ── Consolidado geral (SP + ES) ─────────────────────────────────────────────
-
-@router.get("/consolidado-geral")
-def get_consolidado_geral():
-    buffer = _build_consolidado_geral()
-    if buffer is None:
-        raise HTTPException(status_code=404, detail="Nenhum arquivo sumario/detalhe encontrado para consolidar.")
-
-    return StreamingResponse(
-        buffer,
-        media_type="application/vnd.ms-excel",
-        headers={"Content-Disposition": 'attachment; filename="Consolidado_Geral_SP_ES.xls"'},
-    )
-
-
-# ── Por região ───────────────────────────────────────────────────────────────
+# ── Por região — SP e ES são processados de forma totalmente independente,
+# não existe mais consolidação cruzada entre regiões. ──────────────────────
 
 @router.get("/{regiao}/consolidado")
 def get_consolidado(regiao: str):
@@ -157,14 +114,13 @@ def get_consolidado(regiao: str):
 
 @router.get("/{regiao}/{filename}/download")
 def download_file(regiao: str, filename: str):
-    """Baixa o arquivo bruto (CSV ou JSON) — usado sobretudo pelo Tempo Real,
-    que não entra no consolidado em Excel."""
+    """Baixa o CSV bruto (fora do consolidado em Excel)."""
     regiao = _validate_regiao(regiao)
     if "/" in filename or "\\" in filename or filename != Path(filename).name:
         raise HTTPException(status_code=400, detail="Nome de arquivo inválido.")
 
     target = _regiao_dir(regiao) / filename
-    if not target.is_file() or target.suffix.lower() not in (".csv", ".json"):
+    if not target.is_file() or target.suffix.lower() != ".csv":
         raise HTTPException(status_code=404, detail="Arquivo não encontrado.")
 
     return FileResponse(target, filename=target.name)
@@ -178,10 +134,7 @@ def list_downloads(regiao: str):
     files = []
     dates_set: set = set()
 
-    matched = sorted(
-        [*folder.glob("*.csv"), *folder.glob("*.json")],
-        key=lambda x: x.stat().st_mtime, reverse=True,
-    )
+    matched = sorted(folder.glob("*.csv"), key=lambda x: x.stat().st_mtime, reverse=True)
     for f in matched:
         date_str = _extract_date(f.stem)
         if date_str:
@@ -203,7 +156,7 @@ def delete_all_downloads(regiao: str):
     folder = _regiao_dir(regiao)
 
     deleted = 0
-    for f in [*folder.glob("*.csv"), *folder.glob("*.json")]:
+    for f in folder.glob("*.csv"):
         f.unlink()
         deleted += 1
 
@@ -217,7 +170,7 @@ def delete_download(regiao: str, filename: str):
         raise HTTPException(status_code=400, detail="Nome de arquivo inválido.")
 
     target = _regiao_dir(regiao) / filename
-    if not target.is_file() or target.suffix.lower() not in (".csv", ".json"):
+    if not target.is_file() or target.suffix.lower() != ".csv":
         raise HTTPException(status_code=404, detail="Arquivo não encontrado.")
 
     target.unlink()

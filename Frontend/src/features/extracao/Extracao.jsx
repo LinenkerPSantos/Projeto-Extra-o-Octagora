@@ -18,7 +18,6 @@ const REPORTS = [
   { key: 'nps-especializado',      label: 'NPS Especializado',  regioes: ['SP'] },
   { key: 'nps-video',              label: 'NPS Vídeo/Totem',    regioes: ['SP'] },
 ]
-// Tempo Real (SLA) tem página própria — ver features/tempo-real/TempoReal.jsx
 
 function yesterday() {
   const d = new Date()
@@ -71,7 +70,6 @@ export default function Extracao() {
   const [dateStart, setDateStart] = useState(yesterday())
   const [dateEnd, setDateEnd] = useState(yesterday())
   const [consolidating, setConsolidating] = useState(false)
-  const [consolidatingGeral, setConsolidatingGeral] = useState(false)
   const logBoxRef = useRef(null)
   const queryClient = useQueryClient()
 
@@ -141,25 +139,6 @@ export default function Extracao() {
     }
   }
 
-  async function downloadConsolidadoGeral() {
-    setConsolidatingGeral(true)
-    try {
-      const res = await api.get('/downloads/consolidado-geral', { responseType: 'blob' })
-      downloadBlob(res.data, 'Consolidado_Geral_SP_ES.xls')
-    } catch (err) {
-      let message = 'Erro ao gerar o arquivo consolidado geral.'
-      if (err.response?.data instanceof Blob) {
-        try {
-          const parsed = JSON.parse(await err.response.data.text())
-          message = parsed.detail || message
-        } catch {}
-      }
-      alert(message)
-    } finally {
-      setConsolidatingGeral(false)
-    }
-  }
-
   async function clearAllFiles() {
     if (!window.confirm(`Excluir todos os arquivos da pasta de downloads (${regiao})?`)) return
     try {
@@ -176,22 +155,12 @@ export default function Extracao() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Octagora — Extração Consolidada</h1>
-          <p className="text-gray-500 text-sm mt-1">
-            Extração de relatórios por intervalo de datas — ambiente ativo: <strong>{regiao}</strong>
-            {' '}(troque no seletor do cabeçalho)
-          </p>
-        </div>
-        <button
-          className="btn-secondary"
-          onClick={downloadConsolidadoGeral}
-          disabled={consolidatingGeral}
-          title="Junta os arquivos de SP e ES em um único consolidado, com a coluna Regiao"
-        >
-          {consolidatingGeral ? 'Consolidando...' : 'Consolidado Geral (SP + ES)'}
-        </button>
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Octagora — Extração</h1>
+        <p className="text-gray-500 text-sm mt-1">
+          Extração de relatórios por intervalo de datas — ambiente ativo: <strong>{regiao}</strong>
+          {' '}(troque no seletor do cabeçalho)
+        </p>
       </div>
 
       {/* Intervalo de datas */}

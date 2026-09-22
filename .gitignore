@@ -5,7 +5,6 @@ Backend/.env
 Backend/credentials.json
 Backend/downloads/**/*.csv
 Backend/downloads/**/*.xlsx
-Backend/downloads/**/*.json
 node_modules/
 Frontend/dist/
 

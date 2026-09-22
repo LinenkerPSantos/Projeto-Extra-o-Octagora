@@ -57,16 +57,10 @@ export default function Dashboard() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Link to="/octagora" className="card p-5 hover:shadow-md transition-shadow">
-          <h2 className="font-semibold text-gray-800">📥 Extração Octagora</h2>
-          <p className="text-sm text-gray-500 mt-1">Rodar relatórios e consolidar bases de {regiao}.</p>
-        </Link>
-        <Link to="/tempo-real" className="card p-5 hover:shadow-md transition-shadow">
-          <h2 className="font-semibold text-gray-800">⏱️ Tempo Real (SLA)</h2>
-          <p className="text-sm text-gray-500 mt-1">Ver a fila do Dashboard Presencial agora em {regiao}.</p>
-        </Link>
-      </div>
+      <Link to="/octagora" className="card p-5 hover:shadow-md transition-shadow block">
+        <h2 className="font-semibold text-gray-800">📥 Extração Octagora</h2>
+        <p className="text-sm text-gray-500 mt-1">Rodar relatórios e consolidar bases de {regiao}.</p>
+      </Link>
 
       <div className="card">
         <div className="px-5 py-4 border-b border-gray-100">
