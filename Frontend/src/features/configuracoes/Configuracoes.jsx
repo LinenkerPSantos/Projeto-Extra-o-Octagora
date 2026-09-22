@@ -58,7 +58,6 @@ function CredentialCard({ regiao, label, saved }) {
           className="input"
           value={user}
           onChange={e => setUser(e.target.value)}
-          placeholder="ex: 10004791@edp.com.br"
           autoComplete="off"
         />
       </div>
