@@ -1,11 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
 import api from '../../api/client'
-
-const REGIOES = [
-  { key: 'ES', label: 'ES' },
-  { key: 'SP', label: 'SP' },
-]
+import { useRegion } from '../../context/RegionContext'
 
 const RISCO_STYLE = {
   'CRÍTICO':    'bg-red-100 text-red-700',
@@ -35,7 +31,7 @@ function RiscoBadge({ risco }) {
 }
 
 export default function TempoReal() {
-  const [regiao, setRegiao] = useState('ES')
+  const { regiao } = useRegion()
   const logBoxRef = useRef(null)
   const queryClient = useQueryClient()
 
@@ -80,21 +76,9 @@ export default function TempoReal() {
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Tempo Real (SLA)</h1>
         <p className="text-gray-500 text-sm mt-1">
-          Fila do Dashboard Presencial no momento da coleta — não é um relatório por intervalo de datas.
+          Fila do Dashboard Presencial no momento da coleta — ambiente ativo: <strong>{regiao}</strong>
+          {' '}(troque no seletor do cabeçalho)
         </p>
-      </div>
-
-      {/* Seletor de região */}
-      <div className="flex gap-2">
-        {REGIOES.map(r => (
-          <span
-            key={r.key}
-            className={regiao === r.key ? 'tab-active' : 'tab-inactive'}
-            onClick={() => setRegiao(r.key)}
-          >
-            Agências - {r.label}
-          </span>
-        ))}
       </div>
 
       {/* Ação + status da última coleta */}

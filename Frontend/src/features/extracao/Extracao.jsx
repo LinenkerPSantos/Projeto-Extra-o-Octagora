@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
 import api from '../../api/client'
+import { useRegion } from '../../context/RegionContext'
 
 const STATUS_LABEL = {
   idle: 'Aguardando',
@@ -8,11 +9,6 @@ const STATUS_LABEL = {
   success: 'Concluído',
   error: 'Erro',
 }
-
-const REGIOES = [
-  { key: 'ES', label: 'ES' },
-  { key: 'SP', label: 'SP' },
-]
 
 const REPORTS = [
   { key: 'tempoprotocolo-sumario', label: 'Sumário',            regioes: ['ES', 'SP'] },
@@ -71,7 +67,7 @@ function ReportRow({ item, st, onExtract, disabled }) {
 }
 
 export default function Extracao() {
-  const [regiao, setRegiao] = useState('ES')
+  const { regiao } = useRegion()
   const [dateStart, setDateStart] = useState(yesterday())
   const [dateEnd, setDateEnd] = useState(yesterday())
   const [consolidating, setConsolidating] = useState(false)
@@ -183,7 +179,10 @@ export default function Extracao() {
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Octagora — Extração Consolidada</h1>
-          <p className="text-gray-500 text-sm mt-1">Extração de relatórios por intervalo de datas — SP e ES</p>
+          <p className="text-gray-500 text-sm mt-1">
+            Extração de relatórios por intervalo de datas — ambiente ativo: <strong>{regiao}</strong>
+            {' '}(troque no seletor do cabeçalho)
+          </p>
         </div>
         <button
           className="btn-secondary"
@@ -193,19 +192,6 @@ export default function Extracao() {
         >
           {consolidatingGeral ? 'Consolidando...' : 'Consolidado Geral (SP + ES)'}
         </button>
-      </div>
-
-      {/* Seletor de região */}
-      <div className="flex gap-2">
-        {REGIOES.map(r => (
-          <span
-            key={r.key}
-            className={regiao === r.key ? 'tab-active' : 'tab-inactive'}
-            onClick={() => setRegiao(r.key)}
-          >
-            Agências - {r.label}
-          </span>
-        ))}
       </div>
 
       {/* Intervalo de datas */}
